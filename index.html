@@ -1,0 +1,586 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuizMaster - Online Quiz</title>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+header {
+    background: #4338ca;
+    color: white;
+    padding: 20px 8%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header h2 {
+    font-size: 25px;
+}
+
+nav button {
+    padding: 10px 16px;
+    margin-left: 8px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: white;
+    color: #4338ca;
+    font-weight: bold;
+}
+
+.container {
+    max-width: 900px;
+    margin: 40px auto;
+    padding: 20px;
+}
+
+.section {
+    display: none;
+}
+
+.active {
+    display: block;
+}
+
+.hero {
+    background: white;
+    padding: 50px 20px;
+    text-align: center;
+    border-radius: 12px;
+    box-shadow: 0 3px 15px #0001;
+}
+
+.hero h1 {
+    font-size: 38px;
+    color: #4338ca;
+    margin-bottom: 15px;
+}
+
+.hero p {
+    margin-bottom: 25px;
+    color: #64748b;
+}
+
+.btn {
+    background: #4338ca;
+    color: white;
+    padding: 12px 22px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    margin: 5px;
+    font-size: 15px;
+}
+
+.btn:hover {
+    background: #3730a3;
+}
+
+.card {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin: 15px 0;
+    box-shadow: 0 3px 12px #0001;
+}
+
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+}
+
+.option {
+    display: block;
+    padding: 13px;
+    margin: 10px 0;
+    background: #f1f5f9;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
+.option:hover {
+    background: #e0e7ff;
+}
+
+.option input {
+    width: auto;
+    margin-right: 10px;
+}
+
+.timer {
+    color: #dc2626;
+    font-weight: bold;
+    text-align: right;
+    margin-bottom: 15px;
+}
+
+.correct {
+    color: green;
+}
+
+.wrong {
+    color: red;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th, td {
+    padding: 13px;
+    border: 1px solid #ddd;
+    text-align: center;
+}
+
+th {
+    background: #4338ca;
+    color: white;
+}
+
+footer {
+    text-align: center;
+    padding: 25px;
+    color: #64748b;
+}
+
+@media(max-width:600px) {
+    header {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .hero h1 {
+        font-size: 28px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>QuizMaster</h2>
+    <nav>
+        <button onclick="showSection('home')">Home</button>
+        <button onclick="showSection('login')">Login</button>
+        <button onclick="showSection('register')">Register</button>
+        <button onclick="showSection('leaderboard')">Leaderboard</button>
+    </nav>
+</header>
+
+<div class="container">
+
+<!-- HOME -->
+<section id="home" class="section active">
+    <div class="hero">
+        <h1>Welcome to QuizMaster</h1>
+        <p>Test your knowledge and improve your skills!</p>
+        <button class="btn" onclick="showSection('login')">
+            Get Started
+        </button>
+    </div>
+
+    <div class="card">
+        <h2>Available Subjects</h2>
+        <p>Choose your favourite subject and start learning.</p>
+        <br>
+        <button class="btn" onclick="startQuiz('Python')">Python</button>
+        <button class="btn" onclick="startQuiz('HTML')">HTML</button>
+        <button class="btn" onclick="startQuiz('General Knowledge')">General Knowledge</button>
+    </div>
+</section>
+
+<!-- REGISTER -->
+<section id="register" class="section">
+    <div class="card">
+        <h2>Create Account</h2>
+        <input type="text" id="regName" placeholder="Enter your name">
+        <input type="email" id="regEmail" placeholder="Enter email">
+        <input type="password" id="regPassword" placeholder="Enter password">
+        <button class="btn" onclick="registerUser()">Register</button>
+        <p id="regMessage"></p>
+    </div>
+</section>
+
+<!-- LOGIN -->
+<section id="login" class="section">
+    <div class="card">
+        <h2>User Login</h2>
+        <input type="email" id="loginEmail" placeholder="Enter email">
+        <input type="password" id="loginPassword" placeholder="Enter password">
+        <button class="btn" onclick="loginUser()">Login</button>
+        <p id="loginMessage"></p>
+    </div>
+</section>
+
+<!-- QUIZ -->
+<section id="quiz" class="section">
+    <div class="card">
+        <div class="timer">
+            Time Left: <span id="time">60</span> seconds
+        </div>
+
+        <h2 id="quizSubject"></h2>
+        <br>
+
+        <h3 id="question"></h3>
+        <div id="options"></div>
+
+        <button class="btn" onclick="nextQuestion()">Next</button>
+        <button class="btn" onclick="submitQuiz()">Submit Quiz</button>
+
+        <p id="progress"></p>
+    </div>
+</section>
+
+<!-- RESULT -->
+<section id="result" class="section">
+    <div class="card">
+        <h2>Quiz Result</h2>
+        <h3 id="score"></h3>
+        <p id="resultMessage"></p>
+        <div id="answerReview"></div>
+        <button class="btn" onclick="showSection('home')">Home</button>
+        <button class="btn" onclick="showSection('leaderboard')">Leaderboard</button>
+    </div>
+</section>
+
+<!-- LEADERBOARD -->
+<section id="leaderboard" class="section">
+    <div class="card">
+        <h2>Leaderboard</h2>
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Name</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboardData"></tbody>
+        </table>
+    </div>
+</section>
+
+</div>
+
+<footer>
+    <p>© 2026 QuizMaster | Online Quiz System</p>
+</footer>
+
+<script>
+
+// USER REGISTRATION
+function registerUser() {
+    let name = document.getElementById("regName").value.trim();
+    let email = document.getElementById("regEmail").value.trim();
+    let password = document.getElementById("regPassword").value;
+
+    if (!name || !email || !password) {
+        alert("Please fill all fields");
+        return;
+    }
+
+    let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+    if (users.some(user => user.email === email)) {
+        alert("Email already registered");
+        return;
+    }
+
+    users.push({name, email, password});
+    localStorage.setItem("users", JSON.stringify(users));
+
+    alert("Registration successful!");
+    showSection("login");
+}
+
+// USER LOGIN
+function loginUser() {
+    let email = document.getElementById("loginEmail").value.trim();
+    let password = document.getElementById("loginPassword").value;
+
+    let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+    let user = users.find(
+        u => u.email === email && u.password === password
+    );
+
+    if (user) {
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        alert("Login successful!");
+        showSection("home");
+    } else {
+        document.getElementById("loginMessage").innerText =
+            "Invalid email or password";
+    }
+}
+
+// QUIZ QUESTIONS
+const quizData = {
+    Python: [
+        {
+            q: "Which keyword is used to define a function in Python?",
+            options: ["function", "def", "fun", "define"],
+            answer: 1
+        },
+        {
+            q: "Which data type stores True or False?",
+            options: ["int", "str", "bool", "float"],
+            answer: 2
+        },
+        {
+            q: "Which symbol is used for comments in Python?",
+            options: ["//", "#", "/*", "--"],
+            answer: 1
+        }
+    ],
+
+    HTML: [
+        {
+            q: "What does HTML stand for?",
+            options: [
+                "Hyper Text Markup Language",
+                "High Text Machine Language",
+                "Hyper Tool Markup Language",
+                "Home Text Markup Language"
+            ],
+            answer: 0
+        },
+        {
+            q: "Which tag creates a paragraph?",
+            options: ["<h1>", "<p>", "<br>", "<div>"],
+            answer: 1
+        },
+        {
+            q: "Which tag creates a hyperlink?",
+            options: ["<link>", "<a>", "<href>", "<url>"],
+            answer: 1
+        }
+    ],
+
+    "General Knowledge": [
+        {
+            q: "What is the capital of India?",
+            options: ["Mumbai", "Delhi", "Chennai", "Kolkata"],
+            answer: 1
+        },
+        {
+            q: "Which planet is known as the Red Planet?",
+            options: ["Earth", "Mars", "Jupiter", "Venus"],
+            answer: 1
+        },
+        {
+            q: "How many days are there in a leap year?",
+            options: ["365", "364", "366", "360"],
+            answer: 2
+        }
+    ]
+};
+
+let questions = [];
+let currentQuestion = 0;
+let userAnswers = [];
+let seconds = 60;
+let timerInterval = null;
+
+// SHOW SECTIONS
+function showSection(id) {
+    document.querySelectorAll(".section").forEach(section => {
+        section.classList.remove("active");
+    });
+
+    document.getElementById(id).classList.add("active");
+
+    if (id === "leaderboard") {
+        displayLeaderboard();
+    }
+}
+
+// START QUIZ
+function startQuiz(subject) {
+    if (!localStorage.getItem("currentUser")) {
+        alert("Please login first!");
+        showSection("login");
+        return;
+    }
+
+    questions = quizData[subject];
+    currentQuestion = 0;
+    userAnswers = new Array(questions.length).fill(null);
+    seconds = 60;
+
+    document.getElementById("quizSubject").innerText =
+        subject + " Quiz";
+
+    showSection("quiz");
+    loadQuestion();
+
+    clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        seconds--;
+        document.getElementById("time").innerText = seconds;
+
+        if (seconds <= 0) {
+            submitQuiz();
+        }
+    }, 1000);
+}
+
+// LOAD QUESTION
+function loadQuestion() {
+    let q = questions[currentQuestion];
+
+    document.getElementById("question").innerText =
+        (currentQuestion + 1) + ". " + q.q;
+
+    document.getElementById("progress").innerText =
+        "Question " + (currentQuestion + 1) +
+        " of " + questions.length;
+
+    let html = "";
+
+    q.options.forEach((option, index) => {
+        html += `
+            <label class="option">
+                <input type="radio"
+                    name="answer"
+                    value="${index}"
+                    ${userAnswers[currentQuestion] === index ? "checked" : ""}>
+                ${option}
+            </label>
+        `;
+    });
+
+    document.getElementById("options").innerHTML = html;
+}
+
+// SAVE ANSWER
+function saveAnswer() {
+    let selected = document.querySelector(
+        'input[name="answer"]:checked'
+    );
+
+    userAnswers[currentQuestion] =
+        selected ? Number(selected.value) : null;
+}
+
+// NEXT QUESTION
+function nextQuestion() {
+    saveAnswer();
+
+    if (currentQuestion < questions.length - 1) {
+        currentQuestion++;
+        loadQuestion();
+    } else {
+        alert("This is the last question. Submit your quiz!");
+    }
+}
+
+// SUBMIT QUIZ
+function submitQuiz() {
+    if (!questions.length ||
+        !document.getElementById("quiz").classList.contains("active")) {
+        return;
+    }
+
+    saveAnswer();
+    clearInterval(timerInterval);
+
+    let correct = 0;
+    let review = "";
+
+    questions.forEach((q, index) => {
+        if (userAnswers[index] === q.answer) {
+            correct++;
+            review += `<p class="correct">Question ${index + 1}: Correct</p>`;
+        } else {
+            review += `
+                <p class="wrong">
+                    Question ${index + 1}: Incorrect.
+                    Correct answer: ${q.options[q.answer]}
+                </p>`;
+        }
+    });
+
+    let user = JSON.parse(localStorage.getItem("currentUser"));
+
+    document.getElementById("score").innerText =
+        "Your Score: " + correct + " / " + questions.length;
+
+    document.getElementById("resultMessage").innerText =
+        correct >= 2 ? "Excellent work!" : "Keep practicing!";
+
+    document.getElementById("answerReview").innerHTML = review;
+
+    let results = JSON.parse(localStorage.getItem("results") || "[]");
+
+    results.push({
+        name: user.name,
+        score: correct
+    });
+
+    localStorage.setItem("results", JSON.stringify(results));
+
+    questions = [];
+    showSection("result");
+}
+
+// LEADERBOARD
+function displayLeaderboard() {
+    let results = JSON.parse(localStorage.getItem("results") || "[]");
+
+    results.sort((a, b) => b.score - a.score);
+
+    let html = "";
+
+    results.forEach((result, index) => {
+        html += `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${escapeHTML(result.name)}</td>
+                <td>${result.score}</td>
+            </tr>
+        `;
+    });
+
+    document.getElementById("leaderboardData").innerHTML =
+        html || "<tr><td colspan='3'>No results yet</td></tr>";
+}
+
+// Escape user-provided text before displaying it as HTML
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+    })[char]);
+}
+
+</script>
+
+</body>
+</html>
